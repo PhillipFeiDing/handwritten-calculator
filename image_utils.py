@@ -1,0 +1,82 @@
+import numpy as np
+
+default_rgb_weights = np.array([0.2989, 0.5870, 0.1140])
+
+
+def rgb2gray(img, rgb_weights=default_rgb_weights):
+    if img.ndim == 2:
+        return img.copy()
+    else:
+        gray_img = np.array(img[:, :, 0] * rgb_weights[0]
+                            + img[:, :, 1] * rgb_weights[1]
+                            + img[:, :, 2] * rgb_weights[2], dtype=int)
+        gray_img[gray_img > 255] = 255
+        gray_img[gray_img < 0] = 0
+        return gray_img
+
+
+def gray2rgb(img, a=False):
+    assert img.ndim == 2, "gray scaled image must be 2-d"
+    if not a:
+        img = np.concatenate([[img], [img], [img]], axis=0)
+    else:
+        a_layer = np.full(fill_value=255, dtype=int, shape=img.shape[:2])
+        img = np.concatenate([[img], [img], [img], [a_layer]], axis=0)
+    return img.swapaxes(0, 1).swapaxes(1, 2)
+
+
+def scale_color(img, lightness_factor=None):
+    img = img.copy()
+    min_pix = np.min(np.min(np.min(img)))
+    max_pix = np.max(np.max(np.max(img)))
+
+    ratio = 255 / (max_pix - min_pix)
+    img = np.array(np.round((img - min_pix) * ratio), dtype=int)
+    img[img > 255] = 255
+
+    if lightness_factor is not None:
+        assert len(lightness_factor) == 256, "The lightness_factor must be of length 256."
+        for x in range(img.shape[0]):
+            for y in range(img.shape[1]):
+                if img.ndim == 2:
+                    before = img[x, y]
+                    img[x, y] = min(int(before * lightness_factor[before]), 255)
+                else:
+                    for z in range(3):
+                        before = img[x, y, z]
+                        img[x, y, z] = min(int(before * lightness_factor[before]), 255)
+
+    return np.uint8(img)
+
+
+def get_negative(img):
+    img = img.copy()
+    img[:, :, :3] = np.uint8(255) - img[:, :, :3]
+    return img
+
+
+def convolution(img, kernel):
+    assert img.ndim == 3, "convoluiton takes a rgb(a) image as input, so ndim = 3."
+    rgba = img.shape[2]
+    img = rgb2gray(img)
+
+    assert kernel.shape[0] <= img.shape[0] and kernel.shape[1] <= img.shape[1], "convolution kernel too large."
+
+    conv_img = np.full(fill_value = 0, shape=(img.shape[0] - kernel.shape[0] + 1,
+                                              img.shape[1] - kernel.shape[1] + 1))
+
+    for x in range(conv_img.shape[0]):
+        for y in range(conv_img.shape[1]):
+            conv_img[x, y] = np.sum(np.sum(img[x: x + kernel.shape[0], y: y + kernel.shape[1]] * kernel))
+
+    return put_frame(gray2rgb(conv_img, a=True), (img.shape[0], img.shape[1], rgba), 0)
+
+
+def put_frame(img, target_shape, fill_value=0):
+    assert img.shape[0] <= target_shape[0] and img.shape[1] <= target_shape[1], "image too large to be framed."
+
+    framed = np.full(fill_value=fill_value, shape=target_shape)
+    start_x = int((target_shape[0] - img.shape[0]) / 2)
+    start_y = int((target_shape[1] - img.shape[1]) / 2)
+    framed[start_x: start_x + img.shape[0], start_y: start_y + img.shape[1], :] = img
+    return framed.copy()
