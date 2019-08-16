@@ -55,14 +55,16 @@ class Model:
 
         labels = self._classifier.predict(features)
 
-        return np.array(labels)
+        return objects, np.array(labels)
 
 
 if __name__ == "__main__":
-    test_img_path = "sample_expressions/digits0-9.png"
+    path = "sample_expressions/"
+    test_img_name = input("Path to image: " + path)
 
     model = Model()
 
-    labels = model.predict(plt.imread(test_img_path, format="rgba"))
+    objects, labels = model.predict(plt.imread(path + test_img_name, format="rgba"))
 
-    print(labels)
+    for i in range(len(objects)):
+        print("%s: %d" % (str(objects[i]), labels[i]))
