@@ -28,6 +28,6 @@ The tool created in this project identifies the location of diigts (0 - 9) prese
 
 4. However, for images, using each pixel as one feature may not be a good approcah because there are still a lot of them even after the abstraction done above. Therefore, the program considers to use PCA to reduce the number of dimensions of the feature space while keeping 95% explained features, which also eliminates some noises in the input.
 
-5. After number of features has been reduced to approximately 30, the tool trains a quadratic logistic regression classifier with an accuracy of 98%
+5. After number of features has been reduced to approximately 30, the tool trains a quadratic logistic regression classifier with an accuracy of 98%. Notice this accuracy only describes the performance of this classifier on the testing dataset, not on real-time senarios. With that in mind, I expect the accuracy to be a little lower with actual images.
 
 6. In the future, operators (+-*/) will be added into the training set so that it will support simple arithmatic calculations.
