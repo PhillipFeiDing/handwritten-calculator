@@ -15,16 +15,16 @@ The tool created in this project identifies the location of diigts (0 - 9) prese
 
 *Here are the typical features for digits 0 through 9*
 
-![Squared Image](description_img/digits0.png)
-![Squared Image](description_img/digits1.png)
-![Squared Image](description_img/digits2.png)
-![Squared Image](description_img/digits3.png)
-![Squared Image](description_img/digits4.png)
-![Squared Image](description_img/digits5.png)
-![Squared Image](description_img/digits6.png)
-![Squared Image](description_img/digits7.png)
-![Squared Image](description_img/digits8.png)
-![Squared Image](description_img/digits9.png)
+![Squared Image](description_img/feature-0.png)
+![Squared Image](description_img/feature-1.png)
+![Squared Image](description_img/feature-2.png)
+![Squared Image](description_img/feature-3.png)
+![Squared Image](description_img/feature-4.png)
+![Squared Image](description_img/feature-5.png)
+![Squared Image](description_img/feature-6.png)
+![Squared Image](description_img/feature-7.png)
+![Squared Image](description_img/feature-8.png)
+![Squared Image](description_img/feature-9.png)
 
 4. However, for images, using each pixel as one feature may not be a good approcah because there are still a lot of them even after the abstraction done above. Therefore, the program considers to use PCA to reduce the number of dimensions of the feature space while keeping 95% explained features, which also eliminates some noises in the input.
 
