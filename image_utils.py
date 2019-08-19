@@ -62,14 +62,14 @@ def convolution(img, kernel):
 
     assert kernel.shape[0] <= img.shape[0] and kernel.shape[1] <= img.shape[1], "convolution kernel too large."
 
-    conv_img = np.full(fill_value = 0, shape=(img.shape[0] - kernel.shape[0] + 1,
-                                              img.shape[1] - kernel.shape[1] + 1))
+    conv_img = np.full(fill_value=0, shape=img.shape)
+    shift_x, shift_y = int((kernel.shape[0] - 1) / 2), int((kernel.shape[1] - 1) / 2)
 
-    for x in range(conv_img.shape[0]):
-        for y in range(conv_img.shape[1]):
-            conv_img[x, y] = np.sum(np.sum(img[x: x + kernel.shape[0], y: y + kernel.shape[1]] * kernel))
+    for x in range(conv_img.shape[0] - kernel.shape[0] + 1):
+        for y in range(conv_img.shape[1] - kernel.shape[1] + 1):
+            conv_img[x + shift_x, y + shift_y] = np.sum(np.sum(img[x: x + kernel.shape[0], y: y + kernel.shape[1]] * kernel))
 
-    return put_frame(gray2rgb(conv_img, a=True), (img.shape[0], img.shape[1], rgba), 0)
+    return gray2rgb(conv_img, a=True)
 
 
 def put_frame(img, target_shape, fill_value=0):

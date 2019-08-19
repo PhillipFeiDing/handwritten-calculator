@@ -29,10 +29,12 @@ class Model:
         conv_img = get_negative(conv_img)
         conv_img = convolution(conv_img, self._conv_kernel)
         conv_img[conv_img > 255] = 255
-
         conv_img = get_negative(conv_img)
         conv_img = scale_color(conv_img, lightness_factor=self._scale_factor)
         conv_img = np.uint8(conv_img)
+
+        plt.imshow(conv_img)
+        plt.show()
 
         objects = mark_objects(conv_img, min_ratio=self._min_ratio, white=self._white_threshold)
         objects.sort(key=lambda object_pos: object_pos[1])
