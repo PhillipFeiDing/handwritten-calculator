@@ -9,13 +9,14 @@ from image_utils import rgb2gray
 white_threshold = 240 # 0-255
 marker_color = np.array([255, 0, 0], dtype=int)
 outlier_threshold = 0.1
-min_height_width_ratio = 0.8
-max_height_width_ratio = 2.5
+min_height_width_ratio = 1.2
+max_height_width_ratio = 2
 min_height_pixel = 5
 min_width_pixel = 5
+min_merge_overlap = 0.3
 
 
-def mark_objects(img, min_ratio=outlier_threshold, white=white_threshold, criterion="diagonal", reference="max"):
+def mark_objects(img, min_ratio=outlier_threshold, white=white_threshold, criterion="diagonal", reference="max", merge=False):
     img = rgb2gray(img)
 
     content = img < white
@@ -28,9 +29,30 @@ def mark_objects(img, min_ratio=outlier_threshold, white=white_threshold, criter
             if object_pos:
                 objects.append(object_pos)
 
+    if merge:
+        objects = merge(objects)
+
     objects = filter(objects, min_ratio, criterion, reference)
 
     return objects
+
+
+def common_area(rec1, rec2):
+    height = overlap_interval(rec1[0], rec1[2], rec2[0], rec2[2])
+    width = overlap_interval(rec1[1], rec1[3], rec2[1], rec2[3])
+
+    return width * height
+
+
+def overlap_interval(range1l, range1r, range2l, range2r):
+    if range1l > range2l:
+        return overlap_interval(range2l, range2r, range1l, range1r)
+
+    temp = min(range1r, range2r) - max(range1l, range2l)
+    if temp > 0:
+        return temp
+    else:
+        return 0
 
 
 def filter(objects, min_ratio=outlier_threshold, criterion="diagonal", reference="max"):
@@ -110,7 +132,7 @@ def adjust_square(top, left, bottom, right, img_height, img_width):
     height = bottom - top
     width = right - left
 
-    if height < min_height_pixel and width < min_width_pixel:
+    if (height < min_height_pixel and width < min_width_pixel) or height == 0 or width == 0:
         return None
 
     height_width_ratio = height / width

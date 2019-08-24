@@ -55,7 +55,7 @@ def get_negative(img):
     return img
 
 
-def convolution(img, kernel):
+def convolution(img, kernel, gray_scale=True):
     assert img.ndim == 3, "convoluiton takes a rgb(a) image as input, so ndim = 3."
     rgba = img.shape[2]
     img = rgb2gray(img)
@@ -69,7 +69,31 @@ def convolution(img, kernel):
         for y in range(conv_img.shape[1] - kernel.shape[1] + 1):
             conv_img[x + shift_x, y + shift_y] = np.sum(np.sum(img[x: x + kernel.shape[0], y: y + kernel.shape[1]] * kernel))
 
-    return gray2rgb(conv_img, a=True)
+    if gray_scale:
+        return conv_img
+    else:
+        return gray2rgb(conv_img, a=rgba == 4)
+
+
+def pooling(img, pool_x, pool_y, method="mean"):
+    assert img.ndim == 2, "pooling takes a gray sacled image as input, so ndim = 2."
+    assert pool_x <= img.shape[0] and pool_y <= img.shape[1], "pool_x or pool_y too large."
+    accepted_method = ["mean", "max"]
+    assert method in accepted_method, "the pooling method must be one of %s" % str(accepted_method)
+
+    new_x = int(img.shape[0] / pool_x)
+    new_y = int(img.shape[1] / pool_y)
+    pooled = np.full(fill_value=0, shape=(new_x, new_y))
+
+    for x in range(new_x):
+        for y in range(new_y):
+            sub_img = img[x * pool_x: (x + 1) * pool_x, y * pool_y: (y + 1) * pool_y]
+            if method == "mean":
+                pooled[x, y] = np.mean(np.mean(sub_img))
+            else:
+                pooled[x, y] = np.max(np.max(sub_img))
+
+    return pooled
 
 
 def put_frame(img, target_shape, fill_value=0):
